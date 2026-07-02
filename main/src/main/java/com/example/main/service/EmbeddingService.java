@@ -1,12 +1,17 @@
 package com.example.main.service;
 
+import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class EmbeddingService {
-    public void generateEmbed(List<String> document){
-        
+    private final EmbeddingModel embeddingModel;
+    public EmbeddingService(EmbeddingModel embeddingModel){
+        this.embeddingModel=embeddingModel;
+    }
+    public Embedding generateEmbed(String document){
+        return embeddingModel.embed(document).content();
     }
 }
