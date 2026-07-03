@@ -1,6 +1,6 @@
 package com.example.main.service;
 import org.apache.poi.ss.usermodel.*;
-import org.springframework.web.multipart.MultipartFile;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,9 @@ public class ExcelReaderService {
     }
     return true;
 }
-    public List<String> readExcel(MultipartFile file){
+    public List<String> readExcel(InputStream inputStream){
         List<String> documents=new ArrayList<>();
-        try(Workbook workbook=WorkbookFactory.create(file.getInputStream())){
+        try(Workbook workbook=WorkbookFactory.create(inputStream)){
             Sheet sheet=workbook.getSheetAt(0);
             Row header=sheet.getRow(0);
             List<String> headerrow=new ArrayList<>();

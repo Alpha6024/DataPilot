@@ -7,11 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ExcelDocument {
-
     private java.util.UUID id;
-
     private String content;
-
     private Embedding embedding;
-
 }

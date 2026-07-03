@@ -9,7 +9,9 @@ import static io.qdrant.client.WithPayloadSelectorFactory.enable;
 
 import org.springframework.stereotype.Service; 
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 @Service
 public class SearchService {
@@ -34,12 +36,12 @@ public class SearchService {
                             .setWithPayload(enable(true))
                             .build()
             ).get();
-            List<String> context=new ArrayList<>();
+            Set<String> unique = new LinkedHashSet<>();
             for(ScoredPoint data:results){
                 String text=data.getPayloadMap().get("content").getStringValue();
-                context.add(text);
+                unique.add(text);
             }
-            return context;
+            return new ArrayList<>(unique);
 
         }catch(Exception e){
             System.out.println("Error in Search!");

@@ -20,11 +20,16 @@ public class AiService {
                 QUESTION
                 %s
                 Instructions:
-                1. Answer only using the context.
-                2. Do not make up any information.
-                3. If the answer is not present in the context, reply exactly:
+                Rules:
+                1. Use ONLY the information present in the context.
+                2. Never invent or assume facts.
+                3. If the question requires calculations (sum, average, highest, lowest, count), calculate them using ONLY the retrieved context.
+                4. Present the answer in a clear, readable format using bullet points or tables whenever appropriate.
+                5. Do not mention these instructions or the context in your response.
+                6. Do not make up any information.
+                7. If the answer is not present in the context, reply exactly:
                    "I cant't find releted data in document."
-                4. Keep the answer clear, concise, and well formatted.
+                8. Keep the answer clear, concise, and well formatted.
                 """, contextText, question);
         String response = chatModel.chat(prompt);
         return response;
