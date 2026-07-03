@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ExcelDocument {
 
-    private String id;
+    private java.util.UUID id;
 
     private String content;
 

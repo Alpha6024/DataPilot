@@ -1,32 +1,26 @@
 package com.example.main.config;
 
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
-import lombok.Getter;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Getter
 @Configuration
-public class OllamaConfig {
+public class ChatConfig {
 
     @Value("${ollama.base-url}")
     private String baseUrl;
-
-    @Value("${ollama.embedding.model}")
-    private String embeddingModel;
 
     @Value("${ollama.chat.model}")
     private String chatModel;
 
     @Bean
-    public EmbeddingModel embeddingModel() {
-
-        return OllamaEmbeddingModel.builder()
+    public ChatModel chatLanguageModel() {
+        return OllamaChatModel.builder()
                 .baseUrl(baseUrl)
-                .modelName(embeddingModel)
+                .modelName(chatModel)
+                .temperature(0.2)
                 .build();
     }
-
 }

@@ -4,6 +4,9 @@ import com.example.main.model.ExcelDocument;
 import dev.langchain4j.data.embedding.Embedding;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import io.qdrant.client.grpc.Points;
+import io.qdrant.client.grpc.Points.ScoredPoint;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +37,7 @@ public class UploadService {
             Embedding embedding = embeddingService.createEmbedding(doc);
 
             ExcelDocument excelDocument = new ExcelDocument(
-                    UUID.randomUUID().toString(),
+                    UUID.randomUUID(),
                     doc,
                     embedding
             );
