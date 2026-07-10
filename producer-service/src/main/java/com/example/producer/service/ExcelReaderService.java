@@ -1,7 +1,8 @@
-package com.example.main.service;
+package com.example.producer.service;
 
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -25,7 +26,6 @@ public class ExcelReaderService {
         return true;
     }
 
-    // returns [content, code] pairs
     public List<String[]> readExcel(InputStream inputStream, String collectionName) {
         List<String[]> rawRows = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(inputStream)) {
@@ -46,7 +46,6 @@ public class ExcelReaderService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (isEmpty(row)) continue;
-
                 StringBuilder doc = new StringBuilder();
                 String code = "";
                 for (int j = 0; j < headers.size(); j++) {
@@ -60,7 +59,6 @@ public class ExcelReaderService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return deduplicateInBatches(rawRows, collectionName);
     }
 
@@ -70,7 +68,6 @@ public class ExcelReaderService {
             List<String[]> batch = rows.subList(i, Math.min(i + BATCH_SIZE, rows.size()));
             List<String> codes = new ArrayList<>();
             for (String[] r : batch) codes.add(r[1]);
-
             Set<String> existing = qdrantService.findExistingCodes(codes, collectionName);
             for (String[] r : batch) {
                 if (!existing.contains(r[1])) unique.add(r);

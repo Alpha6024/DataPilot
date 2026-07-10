@@ -1,13 +1,14 @@
-package com.example.main.controller;
+package com.example.producer.controller;
 
-import com.example.main.model.ChatResponse;
-import com.example.main.model.JobStatus;
-import com.example.main.service.KafkaAdminService;
-import com.example.main.service.RagService;
-import com.example.main.service.RedisService;
-import com.example.main.service.UploadService;
+import com.example.producer.model.ChatResponse;
+import com.example.producer.model.JobStatus;
+import com.example.producer.service.KafkaAdminService;
+import com.example.producer.service.RagService;
+import com.example.producer.service.RedisService;
+import com.example.producer.service.UploadService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Map;
 
 @RestController
@@ -33,7 +34,8 @@ public class UploadController {
     }
 
     @PostMapping("/chat")
-    public ChatResponse chat(@RequestParam("query") String query, @RequestParam("collectionName") String collectionName) {
+    public ChatResponse chat(@RequestParam("query") String query,
+                             @RequestParam("collectionName") String collectionName) {
         return ragService.ask(query, collectionName);
     }
 

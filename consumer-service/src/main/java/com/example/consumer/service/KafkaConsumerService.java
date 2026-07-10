@@ -1,25 +1,27 @@
-package com.example.main.service;
+package com.example.consumer.service;
 
-import com.example.main.model.ExcelDocument;
-import com.example.main.model.JobStatus;
-import com.example.main.model.UploadMessage;
+import com.example.consumer.model.ExcelDocument;
+import com.example.consumer.model.JobStatus;
+import com.example.consumer.model.UploadMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.embedding.Embedding;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
 public class KafkaConsumerService {
+
     private final ObjectMapper objectMapper;
     private final EmbeddingService embeddingService;
     private final QdrantService qdrantService;
     private final RedisService redisService;
 
     public KafkaConsumerService(ObjectMapper objectMapper,
-            EmbeddingService embeddingService,
-            QdrantService qdrantService,
-            RedisService redisService) {
+                                EmbeddingService embeddingService,
+                                QdrantService qdrantService,
+                                RedisService redisService) {
         this.objectMapper = objectMapper;
         this.embeddingService = embeddingService;
         this.qdrantService = qdrantService;
@@ -33,13 +35,10 @@ public class KafkaConsumerService {
             message = objectMapper.readValue(json, UploadMessage.class);
             qdrantService.ensureCollection(message.getCollectionName());
             Embedding embedding = embeddingService.createEmbedding(message.getContent());
-            ExcelDocument excelDocument = new ExcelDocument(
-                    UUID.randomUUID(),
-                    message.getContent(),
-                    message.getCode(),
-                    embedding
+            qdrantService.saveDocument(
+                    new ExcelDocument(UUID.randomUUID(), message.getContent(), message.getCode(), embedding),
+                    message.getCollectionName()
             );
-            qdrantService.saveDocument(excelDocument, message.getCollectionName());
             redisService.incrementDone(message.getJobId());
             checkAndComplete(message.getJobId());
         } catch (Exception e) {

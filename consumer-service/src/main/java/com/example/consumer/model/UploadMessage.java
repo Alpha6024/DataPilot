@@ -1,12 +1,12 @@
-package com.example.main.model;
+package com.example.consumer.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class UploadMessage {
     private String jobId;
     private String content;

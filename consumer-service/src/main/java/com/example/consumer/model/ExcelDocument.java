@@ -1,4 +1,4 @@
-package com.example.main.model;
+package com.example.consumer.model;
 
 import dev.langchain4j.data.embedding.Embedding;
 import lombok.AllArgsConstructor;

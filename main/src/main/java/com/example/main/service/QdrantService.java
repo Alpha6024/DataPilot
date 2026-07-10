@@ -10,10 +10,15 @@ import static io.qdrant.client.PointIdFactory.id;
 import static io.qdrant.client.VectorFactory.vector;
 import static io.qdrant.client.VectorsFactory.vectors;
 import static io.qdrant.client.ValueFactory.value;
+import io.qdrant.client.ConditionFactory;
+import io.qdrant.client.grpc.Common.Filter;
 import io.qdrant.client.grpc.Points.PointStruct;
+import io.qdrant.client.grpc.Points.ScrollPoints;
+import io.qdrant.client.grpc.Points.ScrollResponse;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import io.qdrant.client.grpc.Points;
+import java.util.Set;
 
 @Service
 public class QdrantService {
@@ -40,27 +45,45 @@ public class QdrantService {
     }
     public void saveDocument(ExcelDocument document, String collectionName) {
         try {
-            System.out.println(document.getContent());
-            PointStruct point =
-                    PointStruct.newBuilder()
-                            .setId(id(document.getId()))
-                            .setVectors(vectors(document.getEmbedding().vectorAsList()))
-                            .putAllPayload(
-                                    Map.of(
-                                            "content",
-                                            value(document.getContent())
-                                    )
-                            )
-                            .build();
-            qdrantClient
-                    .upsertAsync(
-                            collectionName,
-                            List.of(point)
-                    )
-                    .get();
+            PointStruct point = PointStruct.newBuilder()
+                    .setId(id(document.getId()))
+                    .setVectors(vectors(document.getEmbedding().vectorAsList()))
+                    .putAllPayload(Map.of(
+                            "content", value(document.getContent()),
+                            "code", value(document.getCode())
+                    ))
+                    .build();
+            qdrantClient.upsertAsync(collectionName, List.of(point)).get();
             System.out.println("✅ Stored : " + document.getId());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Set<String> findExistingCodes(List<String> codes, String collectionName) {
+        Set<String> found = new HashSet<>();
+        try {
+            boolean exists = qdrantClient.listCollectionsAsync().get().contains(collectionName);
+            if (!exists) return found;
+
+            for (String code : codes) {
+                Filter filter = Filter.newBuilder()
+                        .addMust(ConditionFactory.matchKeyword("code", code))
+                        .build();
+
+                ScrollResponse response = qdrantClient.scrollAsync(
+                        ScrollPoints.newBuilder()
+                                .setCollectionName(collectionName)
+                                .setFilter(filter)
+                                .setLimit(1)
+                                .build()
+                ).get();
+
+                if (!response.getResultList().isEmpty()) found.add(code);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return found;
     }
 }
