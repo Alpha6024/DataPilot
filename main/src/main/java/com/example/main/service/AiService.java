@@ -30,8 +30,13 @@ public class AiService {
                 7. If the answer is not present in the context, reply exactly:
                    "I cant't find releted data in document."
                 8. Keep the answer clear, concise, and well formatted.
+                9. Do not use markdown, asterisks, hashtags, or any special formatting. Plain text only.
                 """, contextText, question);
         String response = chatModel.chat(prompt);
-        return response;
+        return response
+                .replaceAll("\\*{1,2}([^*]+)\\*{1,2}", "$1")
+                .replaceAll("#{1,6}\\s*", "")
+                .replaceAll("\\n{3,}", "\n\n")
+                .trim();
     }   
 }

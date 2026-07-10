@@ -14,8 +14,8 @@ public class RagService {
         this.searchService=searchService;
         this.aiService=aiService;
     }
-    public ChatResponse ask(String query){
-        List<String> context=searchService.search(query);
+    public ChatResponse ask(String query, String collectionName){
+        List<String> context=searchService.search(query, collectionName);
         String answer= aiService.ask(query, context);
         return new ChatResponse(answer, context);
     }

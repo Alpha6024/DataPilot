@@ -22,15 +22,13 @@ public class SearchService {
         this.embeddingService=embeddingService;
         this.qdrantclient=qdrantclient;
     }
-    private static final String COLLECTION_NAME="excel_documents";
-
-    public List<String> search(String que){
+    public List<String> search(String que, String collectionName){
         try{
             Embedding embedding=embeddingService.createEmbedding(que);
             List<Float> query=embedding.vectorAsList();
             List<ScoredPoint> results = qdrantclient.searchAsync(
                     SearchPoints.newBuilder()
-                            .setCollectionName(COLLECTION_NAME)
+                            .setCollectionName(collectionName)
                             .addAllVector(query)
                             .setLimit(5)
                             .setWithPayload(enable(true))

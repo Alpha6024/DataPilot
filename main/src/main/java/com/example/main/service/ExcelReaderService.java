@@ -13,7 +13,7 @@ public class ExcelReaderService {
     }
     DataFormatter format=new DataFormatter();
     for(Cell cell:row){
-        if(!format.formatCellValue(cell).trim().isEmpty());{
+        if(!format.formatCellValue(cell).trim().isEmpty()){
             return false;
         }
     }
@@ -29,7 +29,7 @@ public class ExcelReaderService {
             for(Cell cell:header){
                 headerrow.add(cell.toString());
             }
-            for(int i=1;i<sheet.getLastRowNum();i++){
+            for(int i=1;i<=sheet.getLastRowNum();i++){
                 Row row=sheet.getRow(i);
                 if(isempt(row)){
                     continue;
