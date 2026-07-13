@@ -46,7 +46,6 @@ public class UploadService {
             for (String[] doc : documents)
                 kafkaProducerService.sendMessage(new UploadMessage(jobId, doc[0], doc[1], collectionName));
 
-            System.out.println("✅ Sent " + documents.size() + " unique rows to Kafka. JobId: " + jobId);
             return jobId;
         } catch (Exception e) {
             e.printStackTrace();

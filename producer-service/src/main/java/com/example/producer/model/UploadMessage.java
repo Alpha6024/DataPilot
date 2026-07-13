@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UploadMessage {
     private String jobId;
     private String content;
-    private String code;
+    private String contentHash;
     private String collectionName;
 }

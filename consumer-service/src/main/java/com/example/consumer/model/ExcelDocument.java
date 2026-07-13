@@ -10,6 +10,6 @@ import java.util.UUID;
 public class ExcelDocument {
     private UUID id;
     private String content;
-    private String code;
+    private String contentHash;
     private Embedding embedding;
 }

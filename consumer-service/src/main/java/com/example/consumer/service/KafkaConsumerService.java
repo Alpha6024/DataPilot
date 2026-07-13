@@ -34,9 +34,12 @@ public class KafkaConsumerService {
         try {
             message = objectMapper.readValue(json, UploadMessage.class);
             qdrantService.ensureCollection(message.getCollectionName());
+            if (qdrantService.hashExists(message.getContentHash(), message.getCollectionName())) {
+                return;
+            }
             Embedding embedding = embeddingService.createEmbedding(message.getContent());
             qdrantService.saveDocument(
-                    new ExcelDocument(UUID.randomUUID(), message.getContent(), message.getCode(), embedding),
+                    new ExcelDocument(UUID.randomUUID(), message.getContent(), message.getContentHash(), embedding),
                     message.getCollectionName()
             );
             redisService.incrementDone(message.getJobId());

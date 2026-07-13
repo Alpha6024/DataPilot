@@ -19,7 +19,7 @@ public class KafkaProducerService {
 
     public void sendMessage(UploadMessage message) {
         try {
-            kafkaTemplate.send(TOPIC, message.getCode(), objectMapper.writeValueAsString(message));
+            kafkaTemplate.send(TOPIC, message.getContentHash(), objectMapper.writeValueAsString(message));
         } catch (Exception e) {
             e.printStackTrace();
         }

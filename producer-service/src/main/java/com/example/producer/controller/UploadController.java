@@ -9,6 +9,7 @@ import com.example.producer.service.UploadService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,8 +45,8 @@ public class UploadController {
         return redisService.getJobStatus(jobId);
     }
 
-    @GetMapping("/kafka/info")
-    public Map<String, Object> getKafkaInfo() {
-        return kafkaAdminService.getTopicInfo();
+    @GetMapping("/kafka/messages")
+    public List<Map<String, Object>> getKafkaMessages() {
+        return kafkaAdminService.getMessages();
     }
 }

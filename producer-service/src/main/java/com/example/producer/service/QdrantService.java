@@ -20,15 +20,14 @@ public class QdrantService {
         this.qdrantClient = qdrantClient;
     }
 
-    public Set<String> findExistingCodes(List<String> codes, String collectionName) {
+    public Set<String> findExistingHashes(List<String> hashes, String collectionName) {
         Set<String> found = new HashSet<>();
         try {
             boolean exists = qdrantClient.listCollectionsAsync().get().contains(collectionName);
             if (!exists) return found;
-
-            for (String code : codes) {
+            for (String hash : hashes) {
                 Filter filter = Filter.newBuilder()
-                        .addMust(ConditionFactory.matchKeyword("code", code))
+                        .addMust(ConditionFactory.matchKeyword("content_hash", hash))
                         .build();
                 ScrollResponse response = qdrantClient.scrollAsync(
                         ScrollPoints.newBuilder()
@@ -37,7 +36,7 @@ public class QdrantService {
                                 .setLimit(1)
                                 .build()
                 ).get();
-                if (!response.getResultList().isEmpty()) found.add(code);
+                if (!response.getResultList().isEmpty()) found.add(hash);
             }
         } catch (Exception e) {
             e.printStackTrace();

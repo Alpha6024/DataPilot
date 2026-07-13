@@ -4,14 +4,14 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 
 @Service
 public class ExcelReaderService {
 
     private static final int BATCH_SIZE = 100;
-    private static final String CODE_COLUMN = "code";
-
     private final QdrantService qdrantService;
 
     public ExcelReaderService(QdrantService qdrantService) {
@@ -26,6 +26,18 @@ public class ExcelReaderService {
         return true;
     }
 
+    private String hash(String content) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(content.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            return String.valueOf(content.hashCode());
+        }
+    }
+
     public List<String[]> readExcel(InputStream inputStream, String collectionName) {
         List<String[]> rawRows = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(inputStream)) {
@@ -34,27 +46,20 @@ public class ExcelReaderService {
             DataFormatter fmt = new DataFormatter();
 
             List<String> headers = new ArrayList<>();
-            int codeColIndex = -1;
-            for (Cell cell : header) {
-                String h = cell.toString().trim();
-                headers.add(h);
-                if (h.equalsIgnoreCase(CODE_COLUMN)) codeColIndex = cell.getColumnIndex();
-            }
-
-            if (codeColIndex == -1) throw new RuntimeException("No 'code' column found in Excel");
+            for (Cell cell : header)
+                headers.add(cell.toString().trim());
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (isEmpty(row)) continue;
                 StringBuilder doc = new StringBuilder();
-                String code = "";
                 for (int j = 0; j < headers.size(); j++) {
                     Cell cell = row.getCell(j);
                     String value = (cell == null) ? "" : fmt.formatCellValue(cell);
-                    if (j == codeColIndex) code = value.trim();
                     doc.append(headers.get(j)).append(":").append(value).append("\n");
                 }
-                if (!code.isEmpty()) rawRows.add(new String[]{doc.toString(), code});
+                String content = doc.toString();
+                rawRows.add(new String[]{content, hash(content)});
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,13 +71,11 @@ public class ExcelReaderService {
         List<String[]> unique = new ArrayList<>();
         for (int i = 0; i < rows.size(); i += BATCH_SIZE) {
             List<String[]> batch = rows.subList(i, Math.min(i + BATCH_SIZE, rows.size()));
-            List<String> codes = new ArrayList<>();
-            for (String[] r : batch) codes.add(r[1]);
-            Set<String> existing = qdrantService.findExistingCodes(codes, collectionName);
-            for (String[] r : batch) {
+            List<String> hashes = new ArrayList<>();
+            for (String[] r : batch) hashes.add(r[1]);
+            Set<String> existing = qdrantService.findExistingHashes(hashes, collectionName);
+            for (String[] r : batch)
                 if (!existing.contains(r[1])) unique.add(r);
-                else System.out.println("⚠️ Duplicate code dropped: " + r[1]);
-            }
         }
         return unique;
     }
